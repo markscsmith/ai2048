@@ -1,0 +1,6 @@
+Score: 944
+~ Enter a move (udrl for up, down, right, left, q to quit):
+.      .      .      4    
+2      .      .      32   
+.      .      8      4    
+2      16     128    2    

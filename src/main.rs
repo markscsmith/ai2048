@@ -2,6 +2,7 @@ use rand::seq::SliceRandom;
 use rand::{thread_rng, Rng};
 use std::io;
 use std::io::Read;
+
 use termion::raw::IntoRawMode;
 use std::borrow::Cow;
 const SIZE: usize = 4;
@@ -144,10 +145,6 @@ fn is_game_over(board: &GameBoard) -> bool {
             }
         }
     }
-    eprint!("Game Over!");
-    eprintln!("Score: {}", board.score);
-    
-    eprintln!("Board: {:?}", board.cells);
     true
 }
 
@@ -174,20 +171,18 @@ fn main() {
     
     let mut board = initialize_board();
 
-    let is_tty = atty::is(atty::Stream::Stdin);
+    // let is_tty = atty::is(atty::Stream::Stdin);
 
-    // Required to get the terminal to respond to I/O directly.
-    if is_tty {
-        let _stdout = io::stdout().into_raw_mode().unwrap();
-    }
+    // // Required to get the terminal to respond to I/O directly.
+    // if is_tty {
+    //     let _stdout = io::stdout().into_raw_mode().unwrap();
+    // }
 
     let mut bytes_iter: Box<dyn Iterator<Item = io::Result<u8>>>;
 
-    if is_tty {
-        bytes_iter = Box::new(termion::async_stdin().bytes());
-    } else {
-        bytes_iter = Box::new(io::stdin().bytes());
-    }
+    
+    bytes_iter = Box::new(io::stdin().bytes());
+    
 
     let mut row = 1; // Starting row position
     let mut col = 1; // Starting column position
@@ -219,6 +214,7 @@ fn main() {
         let previous_board = board.clone();
 
         // Print the "Enter a move" prompt justified to the left
+        print!("{}", termion::clear::All);
         print!("{}", termion::cursor::Goto(1, row));
 
         for board_row in board.cells.iter() {
@@ -237,7 +233,9 @@ fn main() {
         }
         print!("{}", termion::cursor::Goto(1, row));
         print!("Score: {}  Moves: {} ", board.score, moves);
-        if last_move_valid {
+        if is_game_over(&board) {
+            println!("X");
+        } else if last_move_valid {
             println!("~");
         } else {
             println!("!");
@@ -246,6 +244,7 @@ fn main() {
             let move_made = match input {
                 
                 Ok(byte) => {
+                    
                     match byte {
                         b'u' => {
                             make_move(&mut board, MoveDirection::Up);
@@ -267,6 +266,10 @@ fn main() {
                             moves += 1;
                             true
                         }
+                        b'f' => {
+                            // refresh output
+                            true
+                        }
                         b'q' => {
                             println!("Quitting the game.");
                             return; // Exit the program
@@ -281,13 +284,10 @@ fn main() {
                 }
                 _ => false,
             };
+            
             // Inside your main loop, after making a move
             if move_made {
                 // Only add a new tile if the board changed
-                if is_game_over(&board) {
-                    //println!("Game Over!");
-                    break;
-                }
                 if !boards_are_identical(&board, &previous_board) {
                     add_random_tile(&mut board);
                     last_move_valid = true;
@@ -295,10 +295,10 @@ fn main() {
                     last_move_valid = false;
                 }
             } else {
-                std::thread::sleep(std::time::Duration::from_millis(10)); // Brief pause to prevent CPU overuse
+                std::thread::sleep(std::time::Duration::from_millis(1)); // Brief pause to prevent CPU overuse
             }
         } else {
-            std::thread::sleep(std::time::Duration::from_millis(10)); // Brief pause to prevent CPU overuse
+            std::thread::sleep(std::time::Duration::from_millis(1)); // Brief pause to prevent CPU overuse
         }
     }
 }

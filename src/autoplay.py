@@ -52,6 +52,8 @@ child.timeout = 1
 
 sequence = 'urdl'
 invalid_moves = 0
+largest = 0
+
 while True:
     try:
         for char in sequence:
@@ -86,7 +88,7 @@ while True:
                 # list comprehension to convert None to '.'
                 values = [value if value is not None else 0 for value in values]
                 # find the largest value on the board
-                largest = max(largest, max(values))
+                largest = max(values, largest)
                 # print the values with a fixed 5 charachter width:
                 print("{: >5} {: >5} {: >5} {: >5}".format(*values))
             print("Largest:", largest)
@@ -124,7 +126,7 @@ while True:
             # list comprehension to convert None to '.'
             values = [value if value is not None else 0 for value in values]
             # find the largest value on the board
-            largest = max(largest, max(values))
+            largest = max(values, largest)
             # print the values with a fixed 5 charachter width:
             print("{: >5} {: >5} {: >5} {: >5}".format(*values))
         print("Largest:", largest)

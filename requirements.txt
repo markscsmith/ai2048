@@ -1,2 +1,6 @@
 pyautogui
 pexpect
+torch
+torchvision
+torchaudio
+tensorflow
